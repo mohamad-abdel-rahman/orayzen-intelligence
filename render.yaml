@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: orayzen-intelligence
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: node dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3002
+      - key: ORAYZEN_API_URL
+        sync: false
+      - key: ORAYZEN_API_KEY
+        sync: false
+      - key: ORAYZEN_WEBHOOK_SECRET
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GOOGLE_AI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: APP_PASSCODE
+        sync: false
