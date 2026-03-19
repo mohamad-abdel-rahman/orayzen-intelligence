@@ -4,7 +4,7 @@ import { createHash, randomBytes } from 'crypto';
 
 @Controller('api/auth')
 export class AuthController {
-  private tokens = new Set<string>();
+  private static tokens = new Set<string>();
 
   constructor(private readonly config: ConfigService) {}
 
@@ -15,13 +15,13 @@ export class AuthController {
       const token = createHash('sha256')
         .update(randomBytes(32))
         .digest('hex');
-      this.tokens.add(token);
+      AuthController.tokens.add(token);
       return { success: true, token };
     }
     return { success: false };
   }
 
   validateToken(token: string): boolean {
-    return this.tokens.has(token);
+    return AuthController.tokens.has(token);
   }
 }
