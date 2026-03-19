@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orayzen Intelligence — Company Knowledge Base</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800;900&family=Barlow+Condensed:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --green:#6DFF2A;--black:#000;--surface:#0C0C0C;--surface-2:#141414;--surface-3:#1C1C1C;
+  --text:#F0F0F0;--text-dim:#888;--green-dim:rgba(109,255,42,0.07);--green-mid:rgba(109,255,42,0.15);
+  --green-border:rgba(109,255,42,0.28);--red:#FF4444;
+}
+body{font-family:'Barlow',sans-serif;background:var(--black);color:var(--text);height:100vh;display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:var(--surface);border-bottom:1px solid var(--green-border)}
+.topbar-left{display:flex;align-items:baseline;gap:14px}
+.topbar-logo{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:var(--green);letter-spacing:2px;text-transform:uppercase}
+.topbar-sub{font-size:13px;color:var(--text-dim);letter-spacing:1px}
+.topbar-right{display:flex;align-items:center;gap:24px}
+.topbar-stat{text-align:right}
+.topbar-stat-value{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--green)}
+.topbar-stat-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.status-dot{width:8px;height:8px;background:var(--green);display:inline-block;margin-right:6px}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--green-border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-search{padding:16px;border-bottom:1px solid rgba(109,255,42,0.10)}
+.sidebar-search-wrap{position:relative}
+.sidebar-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:14px;pointer-events:none}
+.sidebar-search input{width:100%;background:var(--surface-2);border:1px solid rgba(109,255,42,0.15);color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;padding:10px 12px 10px 32px;outline:none}
+.sidebar-search input:focus{border-color:var(--green)}
+.sidebar-label{font-size:10px;font-weight:700;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;padding:16px 16px 8px}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-dim);border-left:3px solid transparent;transition:all 0.1s;user-select:none}
+.sidebar-item:hover{background:var(--green-dim);color:var(--text)}
+.sidebar-item.active{background:var(--green-mid);color:var(--green);border-left-color:var(--green)}
+.sidebar-icon{width:20px;text-align:center;font-size:15px;flex-shrink:0}
+.sidebar-item-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.count-badge{font-family:'JetBrains Mono',monospace;font-size:11px;padding:1px 7px;min-width:22px;text-align:center}
+.count-badge.filled{background:var(--green-dim);color:var(--green)}
+.count-badge.empty{color:#555}
+.check-icon{color:var(--green);font-size:13px}
+.progress-section{padding:16px;border-top:1px solid rgba(109,255,42,0.08);margin-top:auto}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.progress-bar{height:4px;background:var(--surface-3);overflow:hidden}
+.progress-fill{height:100%;background:var(--green);transition:width 0.3s}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.cat-header{padding:32px 40px 24px;border-bottom:1px solid rgba(109,255,42,0.08);background:var(--surface)}
+.cat-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
+.cat-desc{font-size:15px;color:var(--text-dim);line-height:1.5;max-width:640px}
+.content{flex:1;padding:28px 40px 40px;max-width:860px}
+
+/* SAVED ENTRIES */
+.saved-section-label{font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.saved-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green)}
+.saved-card{background:var(--surface);border:1px solid rgba(109,255,42,0.12);margin-bottom:10px;transition:border-color 0.15s}
+.saved-card:hover{border-color:var(--green-border)}
+.saved-card-body{padding:16px 20px}
+.saved-card-text{font-size:15px;line-height:1.65;color:var(--text);white-space:pre-wrap}
+.saved-card-footer{display:flex;justify-content:space-between;align-items:center;padding:8px 20px;border-top:1px solid rgba(109,255,42,0.06);background:rgba(109,255,42,0.02)}
+.saved-card-meta{font-size:12px;color:var(--text-dim);display:flex;gap:16px}
+.saved-card-actions{display:flex;gap:4px}
+.action-btn{font-size:12px;font-weight:600;cursor:pointer;padding:4px 10px;background:none;border:none;letter-spacing:0.5px;font-family:'Barlow',sans-serif}
+.action-btn.edit{color:var(--text-dim)}
+.action-btn.edit:hover{color:var(--text)}
+.action-btn.delete{color:#666}
+.action-btn.delete:hover{color:var(--red)}
+
+/* EDIT MODE */
+.edit-textarea{width:100%;background:var(--surface-2);border:1px solid var(--green);color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:14px 16px;min-height:90px;resize:vertical;outline:none;line-height:1.6}
+.edit-actions{display:flex;gap:8px;justify-content:flex-end;padding:10px 20px}
+
+.divider{border:none;border-top:1px solid rgba(109,255,42,0.06);margin:28px 0}
+
+/* PROMPTS */
+.add-section-label{font-size:11px;font-weight:700;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.prompt{background:var(--surface);border:1px solid rgba(109,255,42,0.10);margin-bottom:12px;overflow:hidden}
+.prompt-top{padding:16px 20px}
+.prompt-q{font-size:16px;font-weight:600;color:var(--text);margin-bottom:3px}
+.prompt-hint{font-size:13px;color:var(--text-dim);line-height:1.4}
+.prompt-input-wrap{padding:0 20px 16px}
+.prompt-textarea{width:100%;background:var(--surface-2);border:1px solid rgba(109,255,42,0.12);color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;padding:14px 16px;min-height:90px;resize:vertical;outline:none;line-height:1.6}
+.prompt-textarea:focus{border-color:var(--green);background:rgba(109,255,42,0.03)}
+.prompt-textarea::placeholder{color:#444;font-style:italic}
+.prompt-footer{display:flex;justify-content:flex-end;padding:0 20px 14px}
+
+/* FREEFORM */
+.freeform{border:1px dashed var(--green-border);padding:20px;margin-top:8px;background:rgba(109,255,42,0.02)}
+.freeform-label{font-size:14px;font-weight:600;color:var(--green);margin-bottom:4px}
+.freeform-hint{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+
+/* BUTTONS */
+.btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 20px;border:none;cursor:pointer}
+.btn-primary{background:var(--green);color:var(--black)}
+.btn-primary:hover{opacity:0.9}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+.btn-secondary{background:transparent;color:var(--green);border:1px solid var(--green-border)}
+.btn-secondary:hover{background:var(--green-dim)}
+.btn-cancel{background:transparent;color:var(--text-dim);border:1px solid #333}
+.btn-cancel:hover{color:var(--text);border-color:#555}
+
+/* SEARCH VIEW */
+.search-container{padding:28px 40px;max-width:860px}
+.search-bar{display:flex;gap:0;margin-bottom:24px}
+.search-bar input{flex:1;background:var(--surface);border:2px solid var(--green-border);border-right:none;color:var(--text);font-family:'Barlow',sans-serif;font-size:16px;padding:14px 18px;outline:none}
+.search-bar input:focus{border-color:var(--green)}
+.search-bar button{background:var(--green);color:var(--black);border:2px solid var(--green);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;padding:14px 28px;cursor:pointer}
+.search-bar button:disabled{opacity:0.4;cursor:not-allowed}
+.result-item{background:var(--surface);border:1px solid rgba(109,255,42,0.12);padding:18px 22px;margin-bottom:10px}
+.result-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.result-tags{display:flex;gap:6px}
+.result-score{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:500}
+.score-high{color:var(--green)}
+.score-mid{color:#CCFF00}
+.score-low{color:var(--text-dim)}
+.result-text{font-size:15px;line-height:1.6;white-space:pre-wrap}
+.result-meta{font-size:12px;color:var(--text-dim);margin-top:8px}
+.tag{display:inline-block;padding:3px 10px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:var(--green-dim);color:var(--green);border:1px solid var(--green-border)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 40px;color:var(--text-dim)}
+.empty-state-icon{font-size:48px;margin-bottom:16px;opacity:0.3}
+.empty-state-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px}
+.empty-state-desc{font-size:14px;line-height:1.5}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--green);padding:14px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 24px rgba(0,0,0,0.5);z-index:100;transform:translateY(100px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-check{color:var(--green);font-size:18px}
+.toast-text{font-size:14px;font-weight:500}
+.toast-text span{color:var(--text-dim);font-size:12px;display:block}
+
+/* LOADING */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--green-border);border-top-color:var(--green);animation:spin 0.6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:50}
+</style>
+</head>
+<body>
+
+<!-- PASSCODE GATE -->
+<div id="auth-gate" style="display:flex;align-items:center;justify-content:center;height:100vh;background:var(--black)">
+  <div style="text-align:center;width:340px">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:var(--green);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">Orayzen Intelligence</div>
+    <div style="font-size:14px;color:var(--text-dim);margin-bottom:32px">Enter passcode to access the Knowledge Base</div>
+    <input id="passcode-input" type="password" placeholder="Passcode"
+      style="width:100%;background:var(--surface-2);border:2px solid var(--green-border);color:var(--text);font-family:'Barlow',sans-serif;font-size:16px;padding:14px 18px;outline:none;text-align:center;letter-spacing:2px"
+      onkeydown="if(event.key==='Enter')checkPasscode()">
+    <button onclick="checkPasscode()"
+      style="width:100%;margin-top:12px;background:var(--green);color:var(--black);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;padding:14px;border:none;cursor:pointer">
+      Enter
+    </button>
+    <div id="auth-error" style="color:var(--red);font-size:13px;margin-top:12px;display:none">Wrong passcode</div>
+  </div>
+</div>
+
+<!-- APP (hidden until authenticated) -->
+<div id="app" style="display:none;height:100vh;flex-direction:column">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">Orayzen Intelligence</div>
+    <div class="topbar-sub">Company Knowledge Base</div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-stat">
+      <div class="topbar-stat-value" id="stat-total">—</div>
+      <div class="topbar-stat-label">Memories</div>
+    </div>
+    <div class="topbar-stat">
+      <div class="topbar-stat-value" id="stat-categories">— / 10</div>
+      <div class="topbar-stat-label">Categories</div>
+    </div>
+    <div style="font-size:12px;color:var(--text-dim)">
+      <span class="status-dot"></span>Connected
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-search">
+      <div class="sidebar-search-wrap">
+        <span class="sidebar-search-icon">⌕</span>
+        <input id="sidebar-search" placeholder="Search knowledge base..." onkeydown="if(event.key==='Enter'){switchToSearch(this.value);this.value=''}">
+      </div>
+    </div>
+    <div class="sidebar-label">Categories</div>
+    <div id="sidebar-categories"></div>
+    <div class="progress-section">
+      <div class="progress-label">
+        <span>Knowledge Coverage</span>
+        <span id="progress-pct" style="color:var(--green)">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="main-content"></div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-check">✓</div>
+  <div class="toast-text" id="toast-text">Saved</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CATEGORIES CONFIG
+// ═══════════════════════════════════════════════════════
+const CATEGORIES = [
+  {
+    id: 'general-info',
+    name: 'General Info',
+    desc: 'Anything and everything your agents should know. Use this for context that doesn\'t fit neatly into other categories — background info, important decisions, lessons learned, or anything on your mind.',
+    prompts: [
+      { q: 'What should your agents know right now?', hint: 'Any important context, recent changes, or things you\'ve been thinking about.', placeholder: 'Right now the most important thing is...' },
+      { q: 'Any rules or guidelines for the agents?', hint: 'Things they should always do or never do. Preferences for how they work.', placeholder: 'The agents should always...' },
+      { q: 'Anything else on your mind?', hint: 'Random context, notes, ideas — anything that might help the agents understand your world better.', placeholder: 'Something the agents should know...' },
+    ]
+  },
+  {
+    id: 'company-overview',
+    name: 'Company Overview',
+    desc: 'The foundation of your agents\' understanding. Tell them who you are, what you do, and why you exist.',
+    prompts: [
+      { q: 'What does your company do?', hint: 'Describe your core business in 2-3 sentences. What problem do you solve and for whom?', placeholder: 'We build...' },
+      { q: 'What\'s your company\'s story?', hint: 'When was it founded? What inspired it? Key milestones the agents should remember?', placeholder: 'The company started when...' },
+      { q: 'What makes you different?', hint: 'Your unfair advantage. Why would someone choose you over alternatives?', placeholder: 'What sets us apart is...' },
+    ]
+  },
+  {
+    id: 'products-services',
+    name: 'Products & Services',
+    desc: 'What you sell, how it works, who it\'s for. Agents need this to make informed decisions about product strategy.',
+    prompts: [
+      { q: 'What are your main products or services?', hint: 'List each product/service with a brief description of what it does.', placeholder: 'Our main product is...' },
+      { q: 'Who is each product for?', hint: 'Target users, ideal customers, use cases for each product.', placeholder: 'Our ideal customer is...' },
+      { q: 'How is your product priced?', hint: 'Pricing model, tiers, free trial, key price points.', placeholder: 'We charge...' },
+      { q: 'What\'s your tech stack?', hint: 'Languages, frameworks, infrastructure, deployment. Helps the CTO agent.', placeholder: 'Built with...' },
+    ]
+  },
+  {
+    id: 'target-market',
+    name: 'Target Market',
+    desc: 'Who your customers are and what they need. This shapes how the Sales, CMO, and CEO agents think.',
+    prompts: [
+      { q: 'Who is your ideal customer?', hint: 'Demographics, company size, industry, role of the buyer.', placeholder: 'Our ideal customer is...' },
+      { q: 'What pain points do they have?', hint: 'The problems your customers face that your product solves.', placeholder: 'They struggle with...' },
+      { q: 'How do customers find you?', hint: 'Marketing channels, referral sources, organic vs paid.', placeholder: 'Most customers come from...' },
+    ]
+  },
+  {
+    id: 'goals-strategy',
+    name: 'Goals & Strategy',
+    desc: 'Where you\'re headed and how you plan to get there. Every agent uses this to align their decisions.',
+    prompts: [
+      { q: 'What are your current goals?', hint: 'OKRs, quarterly targets, annual milestones. Be specific with numbers.', placeholder: 'This quarter we want to...' },
+      { q: 'What\'s your strategic focus right now?', hint: 'Top 2-3 priorities. What are you saying yes to and no to?', placeholder: 'Right now we\'re focused on...' },
+      { q: 'What does success look like in 12 months?', hint: 'Revenue, users, product milestones, team size.', placeholder: 'In 12 months we want to...' },
+    ]
+  },
+  {
+    id: 'team-structure',
+    name: 'Team & Structure',
+    desc: 'How your team is organized. Helps the HR and COO agents understand capacity and responsibilities.',
+    prompts: [
+      { q: 'How is your team structured?', hint: 'Departments, reporting lines, key roles. Include yourself.', placeholder: 'Our team is...' },
+      { q: 'What roles are you hiring for?', hint: 'Open positions, skills needed, timeline.', placeholder: 'We\'re looking to hire...' },
+      { q: 'How does your team communicate?', hint: 'Tools, meeting cadence, async vs sync culture.', placeholder: 'We use...' },
+    ]
+  },
+  {
+    id: 'financials',
+    name: 'Financials',
+    desc: 'Revenue, costs, and runway. The CFO agent needs this to make sound financial recommendations.',
+    prompts: [
+      { q: 'What\'s your revenue model?', hint: 'How you make money — subscriptions, one-time, usage-based, etc.', placeholder: 'We make money by...' },
+      { q: 'What are your current financial numbers?', hint: 'MRR/ARR, burn rate, runway, margins. Whatever you\'re comfortable sharing.', placeholder: 'Currently we...' },
+      { q: 'What are your biggest costs?', hint: 'Infrastructure, salaries, marketing, tools. Helps the CFO prioritize.', placeholder: 'Our biggest expenses are...' },
+    ]
+  },
+  {
+    id: 'processes-sops',
+    name: 'Processes & SOPs',
+    desc: 'How things get done in your company. Agents use this to follow your established workflows.',
+    prompts: [
+      { q: 'How do you handle sales?', hint: 'Sales process, pipeline stages, tools used, who\'s involved.', placeholder: 'Our sales process is...' },
+      { q: 'How do you build and ship product?', hint: 'Development process, sprints, release cadence, QA.', placeholder: 'We ship by...' },
+      { q: 'How are decisions made?', hint: 'Who decides what? Approval chains, autonomy levels.', placeholder: 'Decisions are made by...' },
+    ]
+  },
+  {
+    id: 'brand-values',
+    name: 'Brand & Values',
+    desc: 'Your identity and principles. Shapes how the CMO agent communicates and how all agents represent you.',
+    prompts: [
+      { q: 'What are your core values?', hint: 'The principles that guide how your company operates.', placeholder: 'We believe in...' },
+      { q: 'What\'s your brand voice?', hint: 'Tone, personality, how you want to sound in communications.', placeholder: 'Our brand sounds...' },
+      { q: 'Any brand guidelines the agents should follow?', hint: 'Colors, fonts, messaging rules, things to avoid.', placeholder: 'Always/never...' },
+    ]
+  },
+  {
+    id: 'competitors',
+    name: 'Competitors',
+    desc: 'Who you\'re up against. Helps agents position your product and make strategic recommendations.',
+    prompts: [
+      { q: 'Who are your main competitors?', hint: 'Direct and indirect competitors. What do they offer?', placeholder: 'Our main competitors are...' },
+      { q: 'How are you positioned against them?', hint: 'What do you do better? Where are they stronger?', placeholder: 'Compared to them, we...' },
+      { q: 'What\'s the market landscape?', hint: 'Market size, growth trends, emerging threats or opportunities.', placeholder: 'The market is...' },
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let currentCategory = CATEGORIES[0].id;
+let currentView = 'category'; // 'category' or 'search'
+let allMemories = [];
+let searchQuery = '';
+
+// ═══════════════════════════════════════════════════════
+// API
+// ═══════════════════════════════════════════════════════
+const api = {
+  async list(domain) {
+    const url = domain ? `/api/memories?domain=${encodeURIComponent(domain)}` : '/api/memories';
+    const res = await fetch(url);
+    return res.json();
+  },
+  async store(record) {
+    const res = await fetch('/api/memories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record),
+    });
+    return res.json();
+  },
+  async update(id, content) {
+    const res = await fetch(`/api/memories/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    return res.json();
+  },
+  async delete(id) {
+    const res = await fetch(`/api/memories/${id}`, { method: 'DELETE' });
+    return res.json();
+  },
+  async search(query) {
+    const res = await fetch('/api/memories/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, agent: 'all', topK: 10 }),
+    });
+    return res.json();
+  },
+  async stats() {
+    const res = await fetch('/api/memories/stats');
+    return res.json();
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function showToast(message, sub) {
+  const toast = document.getElementById('toast');
+  const text = document.getElementById('toast-text');
+  text.innerHTML = message + (sub ? `<span>${sub}</span>` : '');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════
+function renderSidebar() {
+  const container = document.getElementById('sidebar-categories');
+  container.innerHTML = CATEGORIES.map(cat => {
+    const count = allMemories.filter(m => m.domain === cat.id).length;
+    const isActive = currentView === 'category' && currentCategory === cat.id;
+    const filled = count > 0;
+    return `
+      <div class="sidebar-item ${isActive ? 'active' : ''}" onclick="selectCategory('${cat.id}')">
+        <span class="sidebar-icon">${filled ? '◆' : '◇'}</span>
+        ${cat.name}
+        <div class="sidebar-item-right">
+          ${filled ? `<span class="count-badge filled">${count}</span><span class="check-icon">✓</span>` : `<span class="count-badge empty">—</span>`}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateTopStats() {
+  const total = allMemories.length;
+  const filledCats = CATEGORIES.filter(cat => allMemories.some(m => m.domain === cat.id)).length;
+  const pct = Math.round((filledCats / CATEGORIES.length) * 100);
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-categories').textContent = `${filledCats} / ${CATEGORIES.length}`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = `${pct}%`;
+}
+
+// ═══════════════════════════════════════════════════════
+// CATEGORY VIEW
+// ═══════════════════════════════════════════════════════
+function selectCategory(catId) {
+  currentCategory = catId;
+  currentView = 'category';
+  renderSidebar();
+  renderCategoryView();
+}
+
+function renderCategoryView() {
+  const cat = CATEGORIES.find(c => c.id === currentCategory);
+  const memories = allMemories.filter(m => m.domain === currentCategory);
+  const main = document.getElementById('main-content');
+
+  main.innerHTML = `
+    <div class="cat-header">
+      <div class="cat-title">${cat.name}</div>
+      <div class="cat-desc">${cat.desc}</div>
+    </div>
+    <div class="content">
+      ${memories.length > 0 ? `
+        <div class="saved-section-label">
+          Saved Knowledge <span class="saved-count">${memories.length} ${memories.length === 1 ? 'entry' : 'entries'}</span>
+        </div>
+        ${memories.map(m => renderSavedCard(m)).join('')}
+        <hr class="divider">
+      ` : ''}
+      <div class="add-section-label">+ Add Knowledge</div>
+      ${cat.prompts.map((p, i) => `
+        <div class="prompt">
+          <div class="prompt-top">
+            <div class="prompt-q">${p.q}</div>
+            <div class="prompt-hint">${p.hint}</div>
+          </div>
+          <div class="prompt-input-wrap">
+            <textarea class="prompt-textarea" id="prompt-${i}" placeholder="${p.placeholder}"></textarea>
+          </div>
+          <div class="prompt-footer">
+            <button class="btn btn-primary" onclick="savePrompt(${i})">Save</button>
+          </div>
+        </div>
+      `).join('')}
+      <div class="freeform">
+        <div class="freeform-label">+ Anything else about ${cat.name.toLowerCase()}</div>
+        <div class="freeform-hint">Add any context that doesn't fit the prompts above. You can come back anytime to add more.</div>
+        <textarea class="prompt-textarea" id="prompt-freeform" placeholder="Type anything the agents should know..." style="min-height:100px"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px">
+          <button class="btn btn-primary" onclick="saveFreeform()">Save</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSavedCard(memory) {
+  const date = new Date(memory.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return `
+    <div class="saved-card" id="card-${memory.id}">
+      <div class="saved-card-body">
+        <div class="saved-card-text" id="text-${memory.id}">${escapeHtml(memory.content)}</div>
+      </div>
+      <div class="saved-card-footer">
+        <div class="saved-card-meta">
+          <span>${date}</span>
+          <span>${memory.domain}</span>
+        </div>
+        <div class="saved-card-actions">
+          <button class="action-btn edit" onclick="startEdit('${memory.id}')">Edit</button>
+          <button class="action-btn delete" onclick="deleteMemory('${memory.id}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVE / EDIT / DELETE
+// ═══════════════════════════════════════════════════════
+async function savePrompt(index) {
+  const textarea = document.getElementById(`prompt-${index}`);
+  const content = textarea.value.trim();
+  if (!content) return;
+
+  const btn = textarea.closest('.prompt').querySelector('.btn');
+  btn.disabled = true;
+  btn.textContent = 'SAVING...';
+
+  try {
+    await api.store({
+      agent: 'all',
+      type: 'semantic',
+      content,
+      domain: currentCategory,
+    });
+    textarea.value = '';
+    showToast('Memory saved & embedded', 'Stored as semantic knowledge');
+    await refreshData();
+    renderCategoryView();
+  } catch (e) {
+    showToast('Error saving', e.message);
+  }
+}
+
+async function saveFreeform() {
+  const textarea = document.getElementById('prompt-freeform');
+  const content = textarea.value.trim();
+  if (!content) return;
+
+  const btn = textarea.closest('.freeform').querySelector('.btn');
+  btn.disabled = true;
+  btn.textContent = 'SAVING...';
+
+  try {
+    await api.store({
+      agent: 'all',
+      type: 'semantic',
+      content,
+      domain: currentCategory,
+    });
+    textarea.value = '';
+    showToast('Memory saved & embedded', 'Stored as semantic knowledge');
+    await refreshData();
+    renderCategoryView();
+  } catch (e) {
+    showToast('Error saving', e.message);
+  }
+}
+
+function startEdit(id) {
+  const memory = allMemories.find(m => m.id === id);
+  if (!memory) return;
+
+  const card = document.getElementById(`card-${id}`);
+  const body = card.querySelector('.saved-card-body');
+  const footer = card.querySelector('.saved-card-footer');
+
+  body.innerHTML = `<textarea class="edit-textarea" id="edit-${id}">${escapeHtml(memory.content)}</textarea>`;
+  footer.innerHTML = `
+    <div></div>
+    <div class="saved-card-actions">
+      <button class="btn btn-cancel" onclick="cancelEdit('${id}')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit('${id}')">Save Changes</button>
+    </div>
+  `;
+
+  document.getElementById(`edit-${id}`).focus();
+}
+
+function cancelEdit(id) {
+  renderCategoryView();
+}
+
+async function saveEdit(id) {
+  const textarea = document.getElementById(`edit-${id}`);
+  const content = textarea.value.trim();
+  if (!content) return;
+
+  try {
+    await api.update(id, content);
+    showToast('Memory updated', 'Re-embedded with new content');
+    await refreshData();
+    renderCategoryView();
+  } catch (e) {
+    showToast('Error updating', e.message);
+  }
+}
+
+async function deleteMemory(id) {
+  if (!confirm('Delete this memory? This cannot be undone.')) return;
+
+  try {
+    await api.delete(id);
+    showToast('Memory deleted', 'Removed from knowledge base');
+    await refreshData();
+    if (currentView === 'category') renderCategoryView();
+  } catch (e) {
+    showToast('Error deleting', e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// SEARCH VIEW
+// ═══════════════════════════════════════════════════════
+function switchToSearch(query) {
+  currentView = 'search';
+  searchQuery = query || '';
+  renderSidebar();
+  // Remove active from all sidebar items
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  renderSearchView();
+  if (searchQuery) doSearch();
+}
+
+function renderSearchView() {
+  const main = document.getElementById('main-content');
+  main.innerHTML = `
+    <div class="cat-header">
+      <div class="cat-title">Search Knowledge</div>
+      <div class="cat-desc">Ask a question to verify agents can find the right context. Uses the same semantic search your agents will use.</div>
+    </div>
+    <div class="search-container">
+      <div class="search-bar">
+        <input id="search-input" placeholder="e.g. What does Orayzen do?" value="${escapeHtml(searchQuery)}"
+          onkeydown="if(event.key==='Enter')doSearch()">
+        <button onclick="doSearch()" id="search-btn">Search</button>
+      </div>
+      <div id="search-results">
+        <div class="empty-state">
+          <div class="empty-state-icon">⌕</div>
+          <div class="empty-state-title">Ask anything</div>
+          <div class="empty-state-desc">Type a question and hit Search to see what the agents would find.</div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('search-input').focus();
+}
+
+async function doSearch() {
+  const input = document.getElementById('search-input');
+  const query = input.value.trim();
+  if (!query) return;
+
+  const btn = document.getElementById('search-btn');
+  const results = document.getElementById('search-results');
+  btn.disabled = true;
+  btn.textContent = 'SEARCHING...';
+  results.innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
+
+  try {
+    const data = await api.search(query);
+    btn.disabled = false;
+    btn.textContent = 'SEARCH';
+
+    if (data.length === 0) {
+      results.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">∅</div>
+          <div class="empty-state-title">No matches found</div>
+          <div class="empty-state-desc">Try a different question, or add more knowledge to the categories.</div>
+        </div>
+      `;
+      return;
+    }
+
+    results.innerHTML = `
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:16px">${data.length} result${data.length === 1 ? '' : 's'} found</div>
+      ${data.map(r => {
+        const scoreClass = r.similarity > 0.85 ? 'score-high' : r.similarity > 0.7 ? 'score-mid' : 'score-low';
+        const catName = CATEGORIES.find(c => c.id === r.agent)?.name || r.agent;
+        const date = r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        return `
+          <div class="result-item">
+            <div class="result-top">
+              <div class="result-tags">
+                <span class="tag">${escapeHtml(r.type)}</span>
+              </div>
+              <div class="result-score ${scoreClass}">${r.similarity.toFixed(3)}</div>
+            </div>
+            <div class="result-text">${escapeHtml(r.content)}</div>
+            ${date ? `<div class="result-meta">${date}</div>` : ''}
+          </div>
+        `;
+      }).join('')}
+    `;
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'SEARCH';
+    results.innerHTML = `<div class="empty-state"><div class="empty-state-title">Search failed</div><div class="empty-state-desc">${escapeHtml(e.message)}</div></div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════════════
+// DATA REFRESH
+// ═══════════════════════════════════════════════════════
+async function refreshData() {
+  try {
+    allMemories = await api.list();
+    renderSidebar();
+    updateTopStats();
+  } catch (e) {
+    console.error('Failed to load memories:', e);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+async function init() {
+  await refreshData();
+  renderCategoryView();
+}
+
+// Only init after auth
+if (sessionStorage.getItem('authed') === '1') {
+  document.getElementById('auth-gate').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  init();
+} else {
+  document.getElementById('passcode-input').focus();
+}
+
+function checkPasscode() {
+  const input = document.getElementById('passcode-input');
+  fetch('/api/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ passcode: input.value }),
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        sessionStorage.setItem('authed', '1');
+        sessionStorage.setItem('token', data.token);
+        document.getElementById('auth-gate').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        init();
+      } else {
+        document.getElementById('auth-error').style.display = 'block';
+        input.value = '';
+        input.focus();
+      }
+    });
+}
+
+// Add auth token to all API requests
+const originalFetch = window.fetch;
+window.fetch = function(url, opts = {}) {
+  if (typeof url === 'string' && url.startsWith('/api/') && !url.endsWith('/auth')) {
+    opts.headers = opts.headers || {};
+    opts.headers['x-auth-token'] = sessionStorage.getItem('token') || '';
+  }
+  return originalFetch(url, opts);
+};
+</script>
+</div><!-- end #app -->
+</body>
+</html>
