@@ -705,7 +705,8 @@ function escapeHtml(str) {
 // ═══════════════════════════════════════════════════════
 async function refreshData() {
   try {
-    allMemories = await api.list();
+    const result = await api.list();
+    allMemories = Array.isArray(result) ? result : [];
     renderSidebar();
     updateTopStats();
   } catch (e) {
@@ -720,6 +721,24 @@ async function init() {
   await refreshData();
   renderCategoryView();
 }
+
+// Add auth token to all API requests (must be before init)
+const originalFetch = window.fetch;
+window.fetch = function(url, opts = {}) {
+  if (typeof url === 'string' && url.startsWith('/api/') && !url.endsWith('/auth')) {
+    opts.headers = opts.headers || {};
+    opts.headers['x-auth-token'] = sessionStorage.getItem('token') || '';
+  }
+  return originalFetch(url, opts).then(res => {
+    if (res.status === 403 && typeof url === 'string' && url.startsWith('/api/') && !url.endsWith('/auth')) {
+      sessionStorage.clear();
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('auth-gate').style.display = '';
+      document.getElementById('passcode-input').focus();
+    }
+    return res;
+  });
+};
 
 // Only init after auth
 if (sessionStorage.getItem('authed') === '1') {
@@ -752,24 +771,6 @@ function checkPasscode() {
       }
     });
 }
-
-// Add auth token to all API requests
-const originalFetch = window.fetch;
-window.fetch = function(url, opts = {}) {
-  if (typeof url === 'string' && url.startsWith('/api/') && !url.endsWith('/auth')) {
-    opts.headers = opts.headers || {};
-    opts.headers['x-auth-token'] = sessionStorage.getItem('token') || '';
-  }
-  return originalFetch(url, opts).then(res => {
-    if (res.status === 403 && typeof url === 'string' && url.startsWith('/api/') && !url.endsWith('/auth')) {
-      sessionStorage.clear();
-      document.getElementById('app').style.display = 'none';
-      document.getElementById('auth-gate').style.display = '';
-      document.getElementById('passcode-input').focus();
-    }
-    return res;
-  });
-};
 </script>
 </div><!-- end #app -->
 </body>
