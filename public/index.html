@@ -760,7 +760,15 @@ window.fetch = function(url, opts = {}) {
     opts.headers = opts.headers || {};
     opts.headers['x-auth-token'] = sessionStorage.getItem('token') || '';
   }
-  return originalFetch(url, opts);
+  return originalFetch(url, opts).then(res => {
+    if (res.status === 403 && typeof url === 'string' && url.startsWith('/api/') && !url.endsWith('/auth')) {
+      sessionStorage.clear();
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('auth-gate').style.display = '';
+      document.getElementById('passcode-input').focus();
+    }
+    return res;
+  });
 };
 </script>
 </div><!-- end #app -->
